@@ -22,6 +22,10 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    public User handleGetUserByUsername(String email) {
+        return this.userRepository.findByEmail(email);
+    }
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

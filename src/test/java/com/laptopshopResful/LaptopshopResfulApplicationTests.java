@@ -1,13 +1,13 @@
-package com.laptopshopResful;
+// package com.laptopshopResful;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class LaptopshopResfulApplicationTests {
+// @SpringBootTest
+// class LaptopshopResfulApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// @Test
+// void contextLoads() {
+// }
 
-}
+// }

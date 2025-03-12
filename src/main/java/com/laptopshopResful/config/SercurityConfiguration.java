@@ -37,60 +37,62 @@ public class SercurityConfiguration {
     // @Value("${hoidanit.jwt.access-token-validity-in-seconds}")
     // private Long jwtExpriation;
 
-    @Bean
+    @Bean // ghi de cau hinh mac dinh(override configuration defaut)
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // khong token van vo duoc may cai whiteList <<<
     // @Bean
     // public SecurityFilterChain filterChain(HttpSecurity http,
     // CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws
     // Exception {
-    // String[] whiteList = {
-    // "/",
-    // "/api/v1/auth/login",
-    // "/api/v1/auth/refresh",
-    // "/storage/**",
-    // "/api/v1/companies/**",
-    // "/api/v1/jobs/**",
-    // "/api/v1/auth/register",
-    // "/api/v1/email/**",
-    // "/v3/api-docs/**",
-    // "/swagger-ui/**",
-    // "/swagger-ui.html"
-    // };
-    // http
 
-    // .csrf(c -> c.disable())
-    // .cors(Customizer.withDefaults())
-    // .authorizeHttpRequests(
-    // authz -> authz
-    // .requestMatchers(whiteList)
-    // .permitAll()
-    // .requestMatchers(HttpMethod.GET, "/api/v1/companies/**").permitAll()
-    // .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
-    // .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()
-    // .requestMatchers(HttpMethod.POST, "/api/v1/files/**").permitAll()
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        String[] whiteList = {
+                "/",
+                "/api/v1/auth/login",
+                "/api/v1/auth/refresh",
+                "/storage/**",
+                "/api/v1/companies/**",
+                "/api/v1/jobs/**",
+                "/api/v1/auth/register",
+                "/api/v1/email/**",
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html"
+        };
+        http
 
-    // .anyRequest().authenticated()
-    // // .anyRequest().permitAll()
+                .csrf(c -> c.disable()) // co che bao ve
+                // .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(
+                        authz -> authz
+                                .requestMatchers(whiteList)
+                                .permitAll()
+                                // .requestMatchers(HttpMethod.GET, "/api/v1/companies/**").permitAll()
+                                // .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
+                                // .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()
+                                // .requestMatchers(HttpMethod.POST, "/api/v1/files/**").permitAll()
+                                // .anyRequest().authenticated()
+                                .anyRequest().permitAll()
+                // .anyRequest().permitAll()
 
-    // )
+                )
+                // oau
+                // .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                // .authenticationEntryPoint(customAuthenticationEntryPoint))
+                // .exceptionHandling(
+                // exceptions -> exceptions
+                // .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                // 401
+                // .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+                // 403
+                .formLogin(f -> f.disable()) // xoa form login
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
 
-    // .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-    // .authenticationEntryPoint(customAuthenticationEntryPoint))
-    // // .exceptionHandling(
-    // // exceptions -> exceptions
-    // // .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //
-    // 401
-    // // .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) // 403
-    // .formLogin(f -> f.disable())
-    // .sessionManagement(session ->
-    // session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-    // return http.build();
-
-    // }
+    }
 
     // // đinh hướng cho filter dùng được bảo vệ api
     // @Bean
