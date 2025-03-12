@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.laptopshopResful.utils.SecurityUtils;
 // import com.laptopshopResful.utils.SecurityUtils;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
@@ -42,13 +43,12 @@ public class SercurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-    // @Bean
-    // public SecurityFilterChain filterChain(HttpSecurity http,
-    // CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws
-    // Exception {
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+
+        // @Bean
+        // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String[] whiteList = {
                 "/",
                 "/api/v1/auth/login",
@@ -70,18 +70,20 @@ public class SercurityConfiguration {
                         authz -> authz
                                 .requestMatchers(whiteList)
                                 .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login").permitAll()
                                 // .requestMatchers(HttpMethod.GET, "/api/v1/companies/**").permitAll()
                                 // .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
                                 // .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()
                                 // .requestMatchers(HttpMethod.POST, "/api/v1/files/**").permitAll()
-                                // .anyRequest().authenticated()
-                                .anyRequest().permitAll()
+                                .anyRequest().authenticated()
                 // .anyRequest().permitAll()
 
                 )
-                // oau
-                // .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-                // .authenticationEntryPoint(customAuthenticationEntryPoint))
+                // protected endpoint
+
+                // tách bearer token
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))
                 // .exceptionHandling(
                 // exceptions -> exceptions
                 // .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
@@ -94,44 +96,45 @@ public class SercurityConfiguration {
 
     }
 
-    // // đinh hướng cho filter dùng được bảo vệ api
-    // @Bean
-    // public JwtDecoder jwtDecoder() {
-    // NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
-    // getSecretKey()).macAlgorithm(SecurityUtils.JWT_ALGORITHM).build();
-    // return token -> {
-    // try {
-    // return jwtDecoder.decode(token);
-    // } catch (Exception ex) {
-    // System.out.println(ex.getMessage());
-    // throw ex;
-    // }
+    // đinh hướng cho filter dùng được bảo vệ api -> tách token
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
+                getSecretKey()).macAlgorithm(SecurityUtils.JWT_ALGORITHM).build();
+        // Giải mã token thành công trả về jwt không thành công trả về exception
+        return token -> {
+            try {
+                return jwtDecoder.decode(token);
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+                throw ex;
+            }
 
-    // };
+        };
 
-    // }
+    }
 
-    // @Bean
-    // public JwtAuthenticationConverter jwtAuthenticationConverter() {
-    // JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new
-    // JwtGrantedAuthoritiesConverter();
-    // grantedAuthoritiesConverter.setAuthorityPrefix("");
-    // grantedAuthoritiesConverter.setAuthoritiesClaimName("permission");
-    // JwtAuthenticationConverter jwtAuthenticationConverter = new
-    // JwtAuthenticationConverter();
-    // jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-    // return jwtAuthenticationConverter;
-    // }
+    // phân quyền cho permision
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("permission");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
 
-    // @Bean
-    // public JwtEncoder jwtEncoder() {
-    // return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
-    // }
+    // tạo encoder
+    @Bean
+    public JwtEncoder jwtEncoder() {
+        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
+    }
 
-    // private SecretKey getSecretKey() {
-    // byte[] keyBytes = Base64.from(jwtKey).decode();
-    // return new SecretKeySpec(keyBytes, 0, keyBytes.length,
-    // SecurityUtils.JWT_ALGORITHM.getName());
-    // }
+    private SecretKey getSecretKey() {
+        byte[] keyBytes = Base64.from(jwtKey).decode();
+        return new SecretKeySpec(keyBytes, 0, keyBytes.length,
+                SecurityUtils.JWT_ALGORITHM.getName());
+    }
 
 }
