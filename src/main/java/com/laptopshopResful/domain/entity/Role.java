@@ -1,62 +1,51 @@
 package com.laptopshopResful.domain.entity;
 
 import java.time.Instant;
+import java.util.List;
 
-import org.apache.catalina.security.SecurityUtil;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.laptopshopResful.utils.SecurityUtils;
-import com.laptopshopResful.utils.constant.GenderEnum;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-@Table(name = "users")
+@Entity
 @Getter
 @Setter
-@Entity
-public class User {
+@Table(name = "roles")
+public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Name isn't empty!")
     private String name;
-    private String email;
-    private String password;
-
-    private int age;
-
-    @Enumerated(EnumType.STRING) // save data with varchar instead of integer
-    private GenderEnum gender;
-
-    private String address;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
-
+    private String description;
+    private boolean active;
     private Instant createdAt;
-
     private Instant updatedAt;
-
     private String createdBy;
-
     private String updatedBy;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "roles" })
+    @JoinTable(name = "permission_role", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
+    private List<Permission> permissions;
+
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @JsonIgnore // lay cai nay se khong lay du lieu cua user
+    List<User> users;
 
     @PrePersist
     public void handleBeforeCreateAt() {
@@ -73,5 +62,4 @@ public class User {
                 : "";
         this.updatedAt = Instant.now();
     }
-
 }

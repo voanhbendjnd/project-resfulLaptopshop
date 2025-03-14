@@ -1,6 +1,7 @@
 package com.laptopshopResful.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.laptopshopResful.domain.entity.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class ResLoginDTO {
         private Long id;
         private String email;
         private String name;
-        // private Role role;
+        private Role role;
     }
 
     @Getter

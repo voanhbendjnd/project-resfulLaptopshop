@@ -46,7 +46,7 @@ public class OpenAPIConfig {
 
     private Info createApiInfo() {
         return new Info()
-                .title("Job Hunter API")
+                .title("Laptop Resful API")
                 .version("1.0")
                 .contact(createContact())
                 .description("This API exposes all endpoints (job hunter)")

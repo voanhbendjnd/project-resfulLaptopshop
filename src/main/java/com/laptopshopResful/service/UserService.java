@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
+import com.laptopshopResful.controller.AuthController;
 import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.response.ResultPaginationDTO;
 import com.laptopshopResful.domain.response.user.ResCreateUserDTO;
@@ -28,6 +28,7 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+
     }
 
     public boolean existsByEmail(String email) {
@@ -42,6 +43,10 @@ public class UserService {
         User currentUser = this.userRepository.save(user);
         return ConvertUserToRes.convertToCreateRes(currentUser);
 
+    }
+
+    public User findByRefreshTokenAndEmail(String re, String email) {
+        return this.findByRefreshTokenAndEmail(re, email);
     }
 
     public ResUpdateUserDTO update(User user) {

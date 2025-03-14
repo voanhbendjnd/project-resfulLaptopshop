@@ -1,21 +1,17 @@
 package com.laptopshopResful.domain.entity;
 
 import java.time.Instant;
+import java.util.List;
 
-import org.apache.catalina.security.SecurityUtil;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.laptopshopResful.utils.SecurityUtils;
-import com.laptopshopResful.utils.constant.GenderEnum;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -23,40 +19,34 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-@Table(name = "users")
+@Entity
 @Getter
 @Setter
-@Entity
-public class User {
+@Table(name = "permissions")
+public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Name isn't empty!")
+    @NotBlank(message = "Not empty!")
     private String name;
-    private String email;
-    private String password;
-
-    private int age;
-
-    @Enumerated(EnumType.STRING) // save data with varchar instead of integer
-    private GenderEnum gender;
-
-    private String address;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
-
+    private String apiPath;
+    private String method;
+    private String module;
     private Instant createdAt;
-
     private Instant updatedAt;
-
     private String createdBy;
-
     private String updatedBy;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    public Permission(String name, String apiPath, String method, String module) {
+        this.name = name;
+        this.apiPath = apiPath;
+        this.method = method;
+        this.module = module;
+    }
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "permissions")
+    @JsonIgnore
+    private List<Role> roles;
 
     @PrePersist
     public void handleBeforeCreateAt() {
