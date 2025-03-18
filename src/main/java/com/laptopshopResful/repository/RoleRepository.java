@@ -9,4 +9,8 @@ import com.laptopshopResful.domain.entity.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long>, JpaSpecificationExecutor<Role> {
     Role findByName(String name);
+
+    boolean existsByName(String name);
+
+    boolean existsById(Long id);
 }

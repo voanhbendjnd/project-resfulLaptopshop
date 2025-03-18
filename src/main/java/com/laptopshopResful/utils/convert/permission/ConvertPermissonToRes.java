@@ -2,6 +2,7 @@ package com.laptopshopResful.utils.convert.permission;
 
 import com.laptopshopResful.domain.entity.Permission;
 import com.laptopshopResful.domain.response.permission.ResCreatePermissionDTO;
+import com.laptopshopResful.domain.response.permission.ResFetchPermissionDTO;
 import com.laptopshopResful.domain.response.permission.ResUpdatePermissionDTO;
 
 public class ConvertPermissonToRes {
@@ -24,6 +25,20 @@ public class ConvertPermissonToRes {
         res.setMethod(permission.getMethod());
         res.setModule(permission.getModule());
         res.setName(permission.getName());
+        res.setUpdatedAt(permission.getUpdatedAt());
+        res.setUpdatedBy(permission.getUpdatedBy());
+        return res;
+    }
+
+    public static ResFetchPermissionDTO convertToFecthToRes(Permission permission) {
+        ResFetchPermissionDTO res = new ResFetchPermissionDTO();
+        res.setApiPath(permission.getApiPath());
+        res.setId(permission.getId());
+        res.setMethod(permission.getMethod());
+        res.setModule(permission.getModule());
+        res.setName(permission.getName());
+        res.setCreatedAt(permission.getCreatedAt());
+        res.setCreatedBy(permission.getCreatedBy());
         res.setUpdatedAt(permission.getUpdatedAt());
         res.setUpdatedBy(permission.getUpdatedBy());
         return res;
