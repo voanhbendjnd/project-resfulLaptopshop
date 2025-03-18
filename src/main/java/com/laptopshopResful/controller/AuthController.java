@@ -1,5 +1,6 @@
 package com.laptopshopResful.controller;
 
+import org.apache.catalina.security.SecurityUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.request.RequestLoginDTO;
 import com.laptopshopResful.domain.response.ResLoginDTO;
+import com.laptopshopResful.domain.response.user.ResCreateUserDTO;
 import com.laptopshopResful.service.UserService;
 import com.laptopshopResful.utils.SecurityUtils;
 import com.laptopshopResful.utils.annotation.ApiMessage;
@@ -102,6 +104,7 @@ public class AuthController {
         return ResponseEntity.ok(userGetAccount);
     }
 
+    // auto refresh token for user if use app or web...
     @GetMapping("/auth/refresh")
     @ApiMessage("Get new token refresh")
     public ResponseEntity<ResLoginDTO> getRefreshToken(
@@ -140,6 +143,53 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(res);
+    }
+
+    // if user logout, refresh token will deleted
+    @PutMapping("auth/logout")
+    @ApiMessage("Logout and delete token")
+    public ResponseEntity<Void> logoutAndDeleteRefreshToken(
+            @CookieValue(name = "refresh_token", defaultValue = "djnd") String tokan) throws IdInvalidException {
+        Jwt decodedToken = this.securityUtils.checkValidRefreshToken(tokan);
+        String email = decodedToken.getSubject();
+        User user = this.userService.findByRefreshTokenAndEmail(tokan, email);
+        user.setRefreshToken(null);
+        this.userService.update(user);
+        return ResponseEntity.ok(null);
+    }
+
+    // same ob
+    @PostMapping("auth/logout")
+    @ApiMessage("Logout and delete token")
+    public ResponseEntity<Void> postLogout2() throws IdInvalidException {
+        String email = SecurityUtils.getCurrentUserLogin().isPresent() ? SecurityUtils.getCurrentUserLogin().get() : "";
+        if (email.equals("")) {
+            throw new IdInvalidException("Access Token không hợp lệ");
+        }
+        // update
+        this.userService.updateUserToken(null, email);
+
+        // remove
+        ResponseCookie cookie = ResponseCookie
+                .from("refresh_token", null)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(null);
+    }
+
+    // for register
+    @PostMapping("/auth/register")
+    @ApiMessage("Create account for register")
+    public ResponseEntity<ResCreateUserDTO> createUser(@Valid @RequestBody User user) throws IdInvalidException {
+        if (this.userService.existsByEmail(user.getEmail())) {
+            throw new IdInvalidException("Email already exists");
+        }
+        String hashPassword = this.passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashPassword);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.create(user));
     }
 
 }

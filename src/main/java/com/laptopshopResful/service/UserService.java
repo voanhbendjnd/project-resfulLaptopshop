@@ -1,6 +1,7 @@
 package com.laptopshopResful.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -8,13 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import com.laptopshopResful.controller.AuthController;
 import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.response.ResultPaginationDTO;
 import com.laptopshopResful.domain.response.user.ResCreateUserDTO;
 import com.laptopshopResful.domain.response.user.ResFetchUserDTO;
 import com.laptopshopResful.domain.response.user.ResUpdateUserDTO;
 import com.laptopshopResful.repository.UserRepository;
+import com.laptopshopResful.utils.UpdateNotNull;
 import com.laptopshopResful.utils.convert.user.ConvertUserToRes;
 
 @Service
@@ -46,17 +47,14 @@ public class UserService {
     }
 
     public User findByRefreshTokenAndEmail(String re, String email) {
-        return this.findByRefreshTokenAndEmail(re, email);
+        return this.userRepository.findByRefreshTokenAndEmail(re, email);
     }
 
     public ResUpdateUserDTO update(User user) {
-        User currentUSer = this.userRepository.findById(user.getId()).get();
-        currentUSer.setName(user.getName());
-        currentUSer.setAddress(user.getAddress());
-        currentUSer.setAge(user.getAge());
-        currentUSer.setGender(user.getGender());
-        this.userRepository.save(currentUSer);
-        return ConvertUserToRes.convertToUpdateRes(currentUSer);
+        Optional<User> currentUSer = this.userRepository.findById(user.getId());
+        UpdateNotNull.handle(user, currentUSer.get());
+        this.userRepository.save(currentUSer.get());
+        return ConvertUserToRes.convertToUpdateRes(currentUSer.get());
     }
 
     public ResFetchUserDTO fecth(Long id) {

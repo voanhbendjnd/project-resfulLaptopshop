@@ -36,7 +36,7 @@ public class User {
     private String email;
     private String password;
 
-    private int age;
+    private Integer age;
 
     @Enumerated(EnumType.STRING) // save data with varchar instead of integer
     private GenderEnum gender;
