@@ -1,6 +1,7 @@
 package com.laptopshopResful.service;
 
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -47,10 +48,25 @@ public class RoleService {
     }
 
     public ResUpdateRoleDTO update(Role role) {
+
         Role r = this.roleRepository.findById(role.getId()).get();
+        if (role.getPermissions() != null) {
+            List<Long> listId = role.getPermissions()
+                    .stream()
+                    .map(Permission::getId)
+                    .collect(Collectors.toList());
+            List<Permission> per = this.permissionRepository.findByIdIn(listId);
+            role.setPermissions(per);
+        }
+        // if (role.isActive() == false) {
+        // r.setActive(false);
+        // }
+        // if (role.isActive() == true) {
+        // r.setActive(true);
+        // }
         UpdateNotNull.handle(role, r);
         this.roleRepository.save(r);
-        return ConvertRoleToRes.convertUpdate(role);
+        return ConvertRoleToRes.convertUpdate(r);
     }
 
     public Role fetchById(Long id) {

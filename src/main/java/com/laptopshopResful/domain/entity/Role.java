@@ -32,7 +32,7 @@ public class Role {
     private Long id;
     private String name;
     private String description;
-    private boolean active;
+    private Boolean active;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;

@@ -13,6 +13,7 @@ public class UpdateNotNull {
                 if (value != null) {
                     x.set(db, value);
                 }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
