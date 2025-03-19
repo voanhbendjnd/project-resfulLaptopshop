@@ -36,6 +36,7 @@ public class DatabaseInitializer implements CommandLineRunner {
         Long cntPermissions = this.permissionRepository.count();
         Long cntRoles = this.roleRepository.count();
         Long cntUsers = this.userRepository.count();
+
         if (cntPermissions == 0) {
             List<Permission> list = new ArrayList<>();
             list.add(new Permission("Create a permission", "/permissions", "POST", "PERMISSIONS"));
@@ -55,8 +56,15 @@ public class DatabaseInitializer implements CommandLineRunner {
             list.add(new Permission("Delete a user", "/users/{id}", "DELETE", "USERS"));
             list.add(new Permission("Fetch user with id", "/users/{id}", "GET", "USERS"));
             list.add(new Permission("Fetch user with pagination", "/users", "GET", "USERS"));
+
+            list.add(new Permission("Create a product", "/products", "POST", "PRODUCTS"));
+            list.add(new Permission("Update a product", "/products", "PUT", "PRODUCTS"));
+            list.add(new Permission("Delete a product", "/products/{id}", "DELETE", "PRODUCTS"));
+            list.add(new Permission("Fetch product with id", "/products/{id}", "GET", "PRODUCTS"));
+            list.add(new Permission("Fetch product with pagination", "/products", "GET", "PRODUCTS"));
             this.permissionRepository.saveAll(list);
         }
+
         if (cntRoles == 0) {
             List<Permission> allPermissions = this.permissionRepository.findAll();
             Role adminRole = new Role();
