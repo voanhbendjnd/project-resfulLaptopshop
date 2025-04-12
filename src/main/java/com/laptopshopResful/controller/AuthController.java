@@ -24,6 +24,7 @@ import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.request.RequestLoginDTO;
 import com.laptopshopResful.domain.response.ResLoginDTO;
 import com.laptopshopResful.domain.response.user.ResCreateUserDTO;
+import com.laptopshopResful.service.CartService;
 import com.laptopshopResful.service.UserService;
 import com.laptopshopResful.utils.SecurityUtils;
 import com.laptopshopResful.utils.annotation.ApiMessage;
@@ -39,17 +40,19 @@ public class AuthController {
     private final AuthenticationManagerBuilder builder;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;
 
     @Value("${djnd.jwt.access-token-validity-in-seconds}")
     private Long refreshTokenExpiration;
 
     public AuthController(AuthenticationManagerBuilder builder, SecurityUtils securityUtils,
-            UserService userService, PasswordEncoder passwordEncoder) {
+            UserService userService, PasswordEncoder passwordEncoder, CartService cartService) {
         this.authenticationManagerBuilder = null;
         this.builder = builder;
         this.securityUtils = securityUtils;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.cartService = cartService;
 
     }
 
@@ -189,6 +192,7 @@ public class AuthController {
         }
         String hashPassword = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(hashPassword);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.create(user));
     }
 

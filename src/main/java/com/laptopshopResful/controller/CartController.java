@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.laptopshopResful.domain.entity.Cart;
+import com.laptopshopResful.domain.entity.CartDetail;
 import com.laptopshopResful.service.CartService;
 import com.laptopshopResful.service.UserService;
 import com.laptopshopResful.utils.annotation.ApiMessage;
@@ -27,4 +28,5 @@ public class CartController {
     public ResponseEntity<Cart> create(@RequestBody Cart cart) throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.cartService.create(cart));
     }
+
 }

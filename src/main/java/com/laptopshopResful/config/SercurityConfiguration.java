@@ -71,10 +71,6 @@ public class SercurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                                // .requestMatchers(HttpMethod.GET, "/api/v1/companies/**").permitAll()
-                                // .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
-                                // .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()
-                                // .requestMatchers(HttpMethod.POST, "/api/v1/files/**").permitAll()
                                 .anyRequest().authenticated()
                 // .anyRequest().permitAll()
 

@@ -14,6 +14,7 @@ import com.laptopshopResful.domain.response.ResultPaginationDTO;
 import com.laptopshopResful.domain.response.user.ResCreateUserDTO;
 import com.laptopshopResful.domain.response.user.ResFetchUserDTO;
 import com.laptopshopResful.domain.response.user.ResUpdateUserDTO;
+import com.laptopshopResful.repository.CartRepository;
 import com.laptopshopResful.repository.UserRepository;
 import com.laptopshopResful.utils.UpdateNotNull;
 import com.laptopshopResful.utils.convert.user.ConvertUserToRes;
@@ -22,13 +23,15 @@ import com.laptopshopResful.utils.convert.user.ConvertUserToRes;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CartService cartService;
 
     public User handleGetUserByUsername(String email) {
         return this.userRepository.findByEmail(email);
     }
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CartRepository cartRepository, CartService cartService) {
         this.userRepository = userRepository;
+        this.cartService = cartService;
 
     }
 
@@ -41,7 +44,9 @@ public class UserService {
     }
 
     public ResCreateUserDTO create(User user) {
+
         User currentUser = this.userRepository.save(user);
+        this.cartService.create(user);
         return ConvertUserToRes.convertToCreateRes(currentUser);
 
     }
