@@ -13,7 +13,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RequestAddToCart {
     @NotNull
-    @Min(1)
+    @Min(value = 1, message = "Quantity must greater then or equal to 1!")
     private Long quantity;
+
+    private String operation;
 
 }

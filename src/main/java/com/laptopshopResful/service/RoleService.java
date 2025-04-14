@@ -58,12 +58,6 @@ public class RoleService {
             List<Permission> per = this.permissionRepository.findByIdIn(listId);
             role.setPermissions(per);
         }
-        // if (role.isActive() == false) {
-        // r.setActive(false);
-        // }
-        // if (role.isActive() == true) {
-        // r.setActive(true);
-        // }
         UpdateNotNull.handle(role, r);
         this.roleRepository.save(r);
         return ConvertRoleToRes.convertUpdate(r);

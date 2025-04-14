@@ -1,6 +1,8 @@
 package com.laptopshopResful.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import com.laptopshopResful.config.SercurityConfiguration;
@@ -8,6 +10,7 @@ import com.laptopshopResful.domain.entity.Cart;
 import com.laptopshopResful.domain.entity.CartDetail;
 import com.laptopshopResful.domain.entity.Product;
 import com.laptopshopResful.domain.entity.User;
+import com.laptopshopResful.domain.response.cart.ResCartDTO;
 import com.laptopshopResful.repository.CartDetailRepository;
 import com.laptopshopResful.repository.CartRepository;
 import com.laptopshopResful.repository.ProductRepository;
@@ -79,6 +82,72 @@ public class CartService {
         User user = this.userRepository.findByEmail(email);
         cart.setUser(user);
         this.cartRepository.save(cart);
+    }
+
+    public ResCartDTO getCartDetail() {
+        String email = this.securityUtils.getCurrentUserLogin().get();
+        User user = this.userRepository.findByEmail(email);
+        Cart cart = user.getCart();
+        List<CartDetail> cartDetails = cart.getCartDetails();
+        List<ResCartDTO.InnerResCartDTO> res = cartDetails.stream()
+                .map(x -> {
+                    Product product = x.getProduct();
+                    ResCartDTO.InnerResCartDTO inner = new ResCartDTO.InnerResCartDTO();
+                    inner.setName(product.getName());
+                    inner.setPrice(product.getPrice());
+                    inner.setQuantity(x.getQuantity());
+                    inner.setTotal(product.getPrice() * x.getQuantity());
+                    return inner;
+                }).collect(Collectors.toList());
+
+        ResCartDTO resCartDTO = new ResCartDTO();
+        resCartDTO.setProList(res);
+        return resCartDTO;
+    }
+
+    public void deleteQuantityCart(Boolean check) {
+        String email = this.securityUtils.getCurrentUserLogin().get();
+        User user = this.userRepository.findByEmail(email);
+        Cart cart = user.getCart();
+        if (!check) {
+            if (cart.getSum() - 1 <= 0) {
+                cart.setSum(0L);
+            }
+        } else {
+            cart.setSum(cart.getSum() + 1);
+        }
+        this.cartRepository.save(cart);
+
+    }
+
+    public void setIncreaseOrDecreaseForProduct(Long id, String operation, Long quantity) {
+        Product product = this.productRepository.findById(id).get();
+        Long qtyProduct = product.getQuantity();
+        String email = this.securityUtils.getCurrentUserLogin().get();
+        User user = this.userRepository.findByEmail(email);
+        Cart cart = user.getCart();
+        CartDetail cartDetail = this.cartDetailRepository.findByCartAndProduct(cart, product);
+        if (operation.equals("increase")) {
+            Long currentQty = cartDetail.getQuantity() + quantity;
+            if (currentQty > qtyProduct) {
+                return;
+            } else {
+                cartDetail.setQuantity(currentQty);
+                this.deleteQuantityCart(true);
+                this.cartDetailRepository.save(cartDetail);
+
+            }
+        } else if (operation.equals("decrease")) {
+            Long currentQty = cartDetail.getQuantity() - quantity;
+            if (currentQty <= 0) {
+                this.cartDetailRepository.delete(cartDetail);
+                this.deleteQuantityCart(false);
+            } else {
+                cartDetail.setQuantity(currentQty);
+                this.cartDetailRepository.save(cartDetail);
+
+            }
+        }
     }
 
 }

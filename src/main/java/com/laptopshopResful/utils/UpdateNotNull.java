@@ -1,7 +1,6 @@
 package com.laptopshopResful.utils;
 
 import java.lang.reflect.Field;
-import java.util.Optional;
 
 public class UpdateNotNull {
     public static <T> void handle(T request, T db) {
