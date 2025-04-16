@@ -20,6 +20,7 @@ public class ResCartDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class InnerResCartDTO {
+        private String picture;
         private String name;
         private Long price;
         private Long quantity;

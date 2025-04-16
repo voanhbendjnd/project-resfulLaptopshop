@@ -29,6 +29,10 @@ public class UserService {
         return this.userRepository.findByEmail(email);
     }
 
+    public User getUserByEmail(String email) {
+        return this.userRepository.findByEmail(email);
+    }
+
     public UserService(UserRepository userRepository, CartRepository cartRepository, CartService cartService) {
         this.userRepository = userRepository;
         this.cartService = cartService;

@@ -93,6 +93,7 @@ public class CartService {
                 .map(x -> {
                     Product product = x.getProduct();
                     ResCartDTO.InnerResCartDTO inner = new ResCartDTO.InnerResCartDTO();
+                    inner.setPicture(product.getImage());
                     inner.setName(product.getName());
                     inner.setPrice(product.getPrice());
                     inner.setQuantity(x.getQuantity());
@@ -113,8 +114,6 @@ public class CartService {
             if (cart.getSum() - 1 <= 0) {
                 cart.setSum(0L);
             }
-        } else {
-            cart.setSum(cart.getSum() + 1);
         }
         this.cartRepository.save(cart);
 
@@ -133,7 +132,6 @@ public class CartService {
                 return;
             } else {
                 cartDetail.setQuantity(currentQty);
-                this.deleteQuantityCart(true);
                 this.cartDetailRepository.save(cartDetail);
 
             }
@@ -150,4 +148,18 @@ public class CartService {
         }
     }
 
+    public void removeProductFromCart(Long id) {
+        String email = this.securityUtils.getCurrentUserLogin().get();
+        User user = this.userRepository.findByEmail(email);
+        Cart cart = user.getCart();
+        Product product = this.productRepository.findById(id).get();
+        CartDetail cartDetail = this.cartDetailRepository.findByCartAndProduct(cart, product);
+        cart.setSum(0L);
+        this.cartRepository.save(cart);
+        this.cartDetailRepository.delete(cartDetail);
+    }
+
+    public CartDetail getCartDetailByCartAndProduct(Cart cart, Product product) {
+        return this.cartDetailRepository.findByCartAndProduct(cart, product);
+    }
 }
