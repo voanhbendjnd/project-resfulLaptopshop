@@ -1,6 +1,5 @@
 package com.laptopshopResful.domain.response.cart;
 
-import java.lang.annotation.Target;
 import java.util.List;
 
 import lombok.AllArgsConstructor;

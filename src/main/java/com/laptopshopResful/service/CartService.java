@@ -1,6 +1,8 @@
 package com.laptopshopResful.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -10,6 +12,8 @@ import com.laptopshopResful.domain.entity.Cart;
 import com.laptopshopResful.domain.entity.CartDetail;
 import com.laptopshopResful.domain.entity.Product;
 import com.laptopshopResful.domain.entity.User;
+import com.laptopshopResful.domain.request.RequestCheckoutCart;
+import com.laptopshopResful.domain.response.cart.ResCartCheckoutDTO;
 import com.laptopshopResful.domain.response.cart.ResCartDTO;
 import com.laptopshopResful.repository.CartDetailRepository;
 import com.laptopshopResful.repository.CartRepository;
@@ -162,4 +166,17 @@ public class CartService {
     public CartDetail getCartDetailByCartAndProduct(Cart cart, Product product) {
         return this.cartDetailRepository.findByCartAndProduct(cart, product);
     }
+
+    public ResCartCheckoutDTO checkoutCart(RequestCheckoutCart checkout) {
+        Long totalPrice = 0L;
+        for (RequestCheckoutCart.OrderItem x : checkout.getItems()) {
+            Product product = this.productRepository.findById(x.getProductId()).get();
+            totalPrice += product.getPrice() * x.getQuantity();
+        }
+        ResCartCheckoutDTO res = new ResCartCheckoutDTO();
+        res.setQuantity((checkout.getItems().size()) * 1L);
+        res.setTotalPrice(totalPrice);
+        return res;
+    }
+
 }

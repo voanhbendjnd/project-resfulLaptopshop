@@ -15,6 +15,8 @@ import com.laptopshopResful.domain.entity.CartDetail;
 import com.laptopshopResful.domain.entity.Product;
 import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.request.RequestAddToCart;
+import com.laptopshopResful.domain.request.RequestCheckoutCart;
+import com.laptopshopResful.domain.response.cart.ResCartCheckoutDTO;
 import com.laptopshopResful.domain.response.cart.ResCartDTO;
 import com.laptopshopResful.repository.CartDetailRepository;
 import com.laptopshopResful.repository.UserRepository;
@@ -61,14 +63,14 @@ public class CartDetailConcoller {
         return ResponseEntity.ok(this.cartService.getCartDetail());
     }
 
-    @PatchMapping("/carts/{id}")
+    @PatchMapping("/client/carts/{id}")
     @ApiMessage("Increase or Decrease quanity product")
     public void setInDe(@PathVariable("id") Long id, @Valid @RequestBody RequestAddToCart request)
             throws IdInvalidException {
         this.cartService.setIncreaseOrDecreaseForProduct(id, request.getOperation(), request.getQuantity());
     }
 
-    @DeleteMapping("/carts/{id}")
+    @DeleteMapping("/client/carts/{id}")
     @ApiMessage("Remove product from cart")
     public ResponseEntity<Void> removeProductFromCart(@PathVariable("id") Long id) throws IdInvalidException {
         String email = this.securityUtils.getCurrentUserLogin().get();
@@ -82,4 +84,11 @@ public class CartDetailConcoller {
         this.cartService.removeProductFromCart(id);
         return ResponseEntity.ok(null);
     }
+
+    @PostMapping("/client/carts/checkout")
+    @ApiMessage("Checkout cart before order")
+    public ResponseEntity<ResCartCheckoutDTO> checkout(@RequestBody RequestCheckoutCart re) throws IdInvalidException {
+        return ResponseEntity.ok(this.cartService.checkoutCart(re));
+    }
+
 }
