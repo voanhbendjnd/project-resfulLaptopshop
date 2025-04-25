@@ -7,25 +7,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.laptopshopResful.domain.entity.Order;
+import com.laptopshopResful.domain.request.RequestCheckoutCart;
 import com.laptopshopResful.domain.request.RequestOrderForDetail;
+import com.laptopshopResful.domain.response.cart.ResCartCheckoutDTO;
 import com.laptopshopResful.domain.response.order.ResOrderDTO;
+import com.laptopshopResful.service.CartService;
 import com.laptopshopResful.service.OrderService;
 import com.laptopshopResful.utils.annotation.ApiMessage;
 import com.laptopshopResful.utils.error.IdInvalidException;
 
 @RestController
-@RequestMapping("/client/order")
+@RequestMapping("/client/orders")
 public class OrderController {
     private final OrderService orderService;
+    private final CartService cartService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, CartService cartService) {
         this.orderService = orderService;
+        this.cartService = cartService;
     }
 
     @PostMapping("")
     @ApiMessage("Get infomation for order")
-    public ResponseEntity<ResOrderDTO> create(@RequestBody Order order, @RequestBody RequestOrderForDetail re)
+    public ResponseEntity<ResOrderDTO> create(@RequestBody RequestOrderForDetail request)
             throws IdInvalidException {
+        return ResponseEntity.ok(this.orderService.placeOrder(request));
+    }
 
+    @PostMapping("/checkout")
+    @ApiMessage("Checkout cart before order")
+    public ResponseEntity<ResCartCheckoutDTO> checkout(@RequestBody RequestCheckoutCart re) throws IdInvalidException {
+        return ResponseEntity.ok(this.cartService.checkoutCart(re));
     }
 }

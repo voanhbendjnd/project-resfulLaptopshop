@@ -35,6 +35,7 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
                 "/files",
                 "/carts/**",
                 "/client/**"
+
         };
         registry.addInterceptor(getPermissionInterceptor())
                 .excludePathPatterns(whiteList);

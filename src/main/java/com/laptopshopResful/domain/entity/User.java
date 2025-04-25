@@ -66,6 +66,10 @@ public class User {
 
     private String updatedBy;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<DiscountUser> discountUsers;
+
     @ManyToOne
     @JoinColumn(name = "role_id")
     @JsonIgnore

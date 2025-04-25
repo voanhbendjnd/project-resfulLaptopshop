@@ -8,7 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import com.laptopshopResful.controller.PermissionController;
+
+import com.laptopshopResful.controller.admin.PermissionController;
 import com.laptopshopResful.domain.entity.Permission;
 import com.laptopshopResful.domain.entity.Role;
 import com.laptopshopResful.domain.response.ResultPaginationDTO;

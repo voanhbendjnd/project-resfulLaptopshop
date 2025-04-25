@@ -3,12 +3,12 @@ package com.laptopshopResful.domain.entity;
 import java.time.Instant;
 import java.util.List;
 
+import org.apache.catalina.security.SecurityUtil;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.laptopshopResful.utils.SecurityUtils;
-import com.laptopshopResful.utils.constant.FactoryEnum;
-import com.laptopshopResful.utils.constant.TargetEnum;
+import com.laptopshopResful.utils.constant.FiledDiscountEnum;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,7 +16,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -29,41 +29,29 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "products")
-public class Product {
+@AllArgsConstructor
+@Table(name = "discounts")
+public class Discount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private Long price;
-    private Long quantity;
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String detailDesc;
-    @Enumerated(EnumType.STRING)
-    private TargetEnum target;
-    private String shortDesc;
-    private String image;
-    private Long sold;
-    @Enumerated(EnumType.STRING)
-    private FactoryEnum factory;
+    private String code;
+    private Integer discount;
+    private Integer frequency;
+    @Enumerated(EnumType.ORDINAL)
+    private FiledDiscountEnum filed;
     private Instant createdAt;
-
     private Instant updatedAt;
+    private String createdBy, updatedBy;
 
-    private String createdBy;
+    @OneToMany(mappedBy = "discount", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<DiscountUser> discountUsers;
 
-    private String updatedBy;
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "discount", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<DiscountProduct> discountProducts;
-
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<CartDetail> cartDetails;
-
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<OrderDetail> orderDetails;
 
     @PrePersist
     public void handleBeforeCreateAt() {
@@ -80,4 +68,5 @@ public class Product {
                 : "";
         this.updatedAt = Instant.now();
     }
+
 }

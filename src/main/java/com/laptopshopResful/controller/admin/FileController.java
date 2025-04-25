@@ -1,4 +1,4 @@
-package com.laptopshopResful.controller;
+package com.laptopshopResful.controller.admin;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

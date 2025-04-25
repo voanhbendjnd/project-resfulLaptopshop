@@ -2,7 +2,11 @@ package com.laptopshopResful.domain.entity;
 
 import java.util.List;
 
+import com.laptopshopResful.utils.constant.StatusEnum;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,7 +36,9 @@ public class Order {
     private String receiverName;
     private String receiverAddress;
     private String receiverPhone;
-    private String status;
+    private Integer discount;
+    @Enumerated(EnumType.ORDINAL)
+    private StatusEnum status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

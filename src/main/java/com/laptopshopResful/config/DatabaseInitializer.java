@@ -63,6 +63,12 @@ public class DatabaseInitializer implements CommandLineRunner {
             list.add(new Permission("Fetch product with id", "/products/{id}", "GET", "PRODUCTS"));
             list.add(new Permission("Fetch product with pagination", "/products", "GET", "PRODUCTS"));
 
+            list.add(new Permission("Create a discount code", "/discounts", "POST", "DISCOUNTS"));
+            list.add(new Permission("Update a discount code", "/discounts", "PUT", "DISCOUNTS"));
+            list.add(new Permission("Delete a discount code", "/discounts/{id}", "DELETE", "DISCOUNTS"));
+            list.add(new Permission("Fetch discount code with id", "/discounts/{id}", "GET", "DISCOUNTS"));
+            list.add(new Permission("Fetch discount code with pagination", "/discounts", "GET", "DISCOUNTS"));
+
             this.permissionRepository.saveAll(list);
         }
 

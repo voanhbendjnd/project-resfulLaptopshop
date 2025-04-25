@@ -1,4 +1,4 @@
-package com.laptopshopResful.controller;
+package com.laptopshopResful.controller.admin;
 
 import org.apache.catalina.security.SecurityUtil;
 import org.springframework.beans.factory.annotation.Value;

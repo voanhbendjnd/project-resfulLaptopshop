@@ -1,4 +1,4 @@
-package com.laptopshopResful.controller;
+package com.laptopshopResful.controller.client;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
