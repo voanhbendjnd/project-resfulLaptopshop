@@ -16,7 +16,7 @@ public class RequestOrderForDetail {
     private String name;
     private String address;
     private String phone;
-    private Double totalPrice;
+    // private Double totalPrice;
     private List<Items> items;
 
     @Getter

@@ -3,6 +3,7 @@ package com.laptopshopResful.domain.response.discount;
 import java.time.Instant;
 
 import com.laptopshopResful.utils.constant.FiledDiscountEnum;
+import com.laptopshopResful.utils.constant.TargetEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,5 +18,5 @@ public class DiscountDTO {
     private String code;
     private Integer discount;
     private Integer frequency;
-    private FiledDiscountEnum filed;
+    private TargetEnum filed;
 }

@@ -6,19 +6,35 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.laptopshopResful.domain.entity.Discount;
+import com.laptopshopResful.domain.entity.DiscountUser;
+import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.response.ResultPaginationDTO;
 import com.laptopshopResful.domain.response.discount.ResDiscountCreate;
 import com.laptopshopResful.domain.response.discount.ResDiscountUpdate;
 import com.laptopshopResful.repository.DiscountRepository;
+import com.laptopshopResful.repository.DiscountUserRepository;
+import com.laptopshopResful.utils.SecurityUtils;
 import com.laptopshopResful.utils.UpdateNotNull;
 import com.laptopshopResful.utils.convert.discount.ConvertDiscountToRes;
 
 @Service
 public class DiscountService {
     private final DiscountRepository discountRepository;
+    private final SecurityUtils securityUtils;
+    private final UserService userService;
+    // private final DiscountUserRepository discountUserRepository;
+    private final DiscountUserService discountUserService;
 
-    public DiscountService(DiscountRepository discountRepository) {
+    public DiscountService(DiscountRepository discountRepository,
+            SecurityUtils securityUtils,
+            UserService userService,
+            DiscountUserRepository discountUserRepository,
+            DiscountUserService discountUserService) {
         this.discountRepository = discountRepository;
+        this.securityUtils = securityUtils;
+        this.userService = userService;
+        this.discountUserService = discountUserService;
+        // this.discountUserRepository = discountUserRepository;
     }
 
     public boolean existsById(Long id) {
@@ -46,6 +62,31 @@ public class DiscountService {
 
     public Discount fetchById(Long id) {
         return this.discountRepository.findById(id).get();
+    }
+
+    public void handleDiscoutAfter(Long id) {
+        Discount dis = this.discountRepository.findById(id).get();
+        String email = this.securityUtils.getCurrentUserLogin().get();
+        User user = this.userService.getUserByEmail(email);
+        DiscountUser disU = new DiscountUser();
+        disU.setDiscount(dis);
+        disU.setUser(user);
+        this.discountUserService.save(disU);
+        Integer newFr = dis.getFrequency() - 1;
+        if (newFr <= 0) {
+            this.discountRepository.delete(dis);
+        } else {
+            dis.setFrequency(newFr);
+            this.discountRepository.save(dis);
+        }
+    }
+
+    public Discount fetchByCode(String code) {
+        return this.discountRepository.findByCode(code);
+    }
+
+    public boolean existsByCode(String code) {
+        return this.discountRepository.existsByCode(code) ? true : false;
     }
 
     public ResultPaginationDTO fetchAll(Specification<Discount> spec, Pageable pageable) {

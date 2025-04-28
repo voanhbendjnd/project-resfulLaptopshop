@@ -1,8 +1,11 @@
 package com.laptopshopResful.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.laptopshopResful.domain.entity.Discount;
 import com.laptopshopResful.domain.entity.Order;
 import com.laptopshopResful.domain.entity.OrderDetail;
 import com.laptopshopResful.domain.entity.Product;
@@ -26,18 +29,28 @@ public class OrderService {
     private final SecurityUtils securityUtils;
     private final UserRepository userRepository;
     private final DiscountRepository discountRepository;
+    private final CartService cartService;
+    private final DiscountService discountService;
+
+    private final ProductService productService;
 
     public OrderService(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository,
             ProductRepository productRepository,
             SecurityUtils securityUtils,
             UserRepository userRepository,
-            DiscountRepository discountRepository) {
+            DiscountRepository discountRepository,
+            CartService cartService,
+            ProductService productService,
+            DiscountService discountService) {
         this.orderDetailRepository = orderDetailRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.securityUtils = securityUtils;
         this.userRepository = userRepository;
         this.discountRepository = discountRepository;
+        this.cartService = cartService;
+        this.productService = productService;
+        this.discountService = discountService;
     }
 
     public void updateOrderDetail(Product product, Long quantity) {
@@ -49,12 +62,28 @@ public class OrderService {
         this.productRepository.save(product);
     }
 
+    public Long hanldeTotalPrice(Long productId, Long qty, String code) {
+        Product product = this.productService.findById(productId);
+        Long giamGia = 0L;
+        Optional<Discount> disOptional = Optional.ofNullable(this.discountService.fetchByCode(code));
+        if (disOptional.isPresent()) {
+            giamGia = (disOptional.get().getDiscount() * product.getPrice()) / 100;
+            this.discountService.handleDiscoutAfter(disOptional.get().getId());
+        }
+        Long resTotal = (product.getPrice() - giamGia) * qty;
+        return resTotal;
+    }
+
     @Transactional
     public ResOrderDTO placeOrder(RequestOrderForDetail orderItems) {
         // start get info account
         String email = this.securityUtils.getCurrentUserLogin().get();
         User user = this.userRepository.findByEmail(email);
-
+        // handle discount
+        Long totalPrice = 0L;
+        for (RequestOrderForDetail.Items x : orderItems.getItems()) {
+            totalPrice += this.hanldeTotalPrice(x.getIdProduct(), x.getQuantity(), x.getCode());
+        }
         // end get info account
 
         // start save order
@@ -63,7 +92,7 @@ public class OrderService {
         order.setReceiverName(orderItems.getName());
         order.setReceiverPhone(orderItems.getPhone());
         order.setStatus(StatusEnum.PENDING);
-        order.setTotalPrice(orderItems.getTotalPrice());
+        order.setTotalPrice(totalPrice * 1D);
         order.setUser(user);
         this.orderRepository.save(order);
         // end save order
@@ -92,4 +121,5 @@ public class OrderService {
 
         return res;
     }
+
 }

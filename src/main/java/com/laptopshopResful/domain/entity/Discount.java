@@ -8,6 +8,7 @@ import org.apache.catalina.security.SecurityUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.laptopshopResful.utils.SecurityUtils;
 import com.laptopshopResful.utils.constant.FiledDiscountEnum;
+import com.laptopshopResful.utils.constant.TargetEnum;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,8 +40,8 @@ public class Discount {
     private String code;
     private Integer discount;
     private Integer frequency;
-    @Enumerated(EnumType.ORDINAL)
-    private FiledDiscountEnum filed;
+    @Enumerated(EnumType.STRING)
+    private TargetEnum filed;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy, updatedBy;

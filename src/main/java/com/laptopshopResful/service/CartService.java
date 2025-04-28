@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.laptopshopResful.config.SercurityConfiguration;
 import com.laptopshopResful.domain.entity.Cart;
 import com.laptopshopResful.domain.entity.CartDetail;
+import com.laptopshopResful.domain.entity.Discount;
 import com.laptopshopResful.domain.entity.Product;
 import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.request.RequestCheckoutCart;
@@ -17,6 +18,7 @@ import com.laptopshopResful.domain.response.cart.ResCartCheckoutDTO;
 import com.laptopshopResful.domain.response.cart.ResCartDTO;
 import com.laptopshopResful.repository.CartDetailRepository;
 import com.laptopshopResful.repository.CartRepository;
+import com.laptopshopResful.repository.DiscountRepository;
 import com.laptopshopResful.repository.ProductRepository;
 import com.laptopshopResful.repository.UserRepository;
 import com.laptopshopResful.utils.SecurityUtils;
@@ -29,14 +31,20 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartDetailRepository cartDetailRepository;
+    // private final DiscountService discountService;
+    private final DiscountRepository discountRepository;
 
     public CartService(CartRepository cartRepository, SecurityUtils securityUtils, UserRepository userRepository,
-            ProductRepository productRepository, CartDetailRepository cartDetailRepository) {
+            ProductRepository productRepository, CartDetailRepository cartDetailRepository,
+
+            DiscountRepository discountRepository) {
         this.cartRepository = cartRepository;
         this.securityUtils = securityUtils;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.cartDetailRepository = cartDetailRepository;
+        // this.discountService = discountService;
+        this.discountRepository = discountRepository;
     }
 
     public Cart create(Cart cart) {
@@ -169,9 +177,15 @@ public class CartService {
 
     public ResCartCheckoutDTO checkoutCart(RequestCheckoutCart checkout) {
         Long totalPrice = 0L;
+        Long giamGia = 0L;
         for (RequestCheckoutCart.OrderItem x : checkout.getItems()) {
             Product product = this.productRepository.findById(x.getProductId()).get();
-            totalPrice += product.getPrice() * x.getQuantity();
+            Discount dis = this.discountRepository.findByCode(x.getCodeDiscount());
+            if (dis != null) {
+                giamGia = (dis.getDiscount() * product.getPrice()) / 100;
+                // this.discountService.handleDiscoutAfter(dis.getId());
+            }
+            totalPrice += (product.getPrice() - giamGia) * x.getQuantity();
         }
         ResCartCheckoutDTO res = new ResCartCheckoutDTO();
         res.setQuantity((checkout.getItems().size()) * 1L);

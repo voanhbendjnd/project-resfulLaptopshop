@@ -37,7 +37,7 @@ public class Order {
     private String receiverAddress;
     private String receiverPhone;
     private Integer discount;
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private StatusEnum status;
 
     @ManyToOne

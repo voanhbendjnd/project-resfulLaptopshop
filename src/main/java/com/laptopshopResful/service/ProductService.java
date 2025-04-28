@@ -45,6 +45,10 @@ public class ProductService {
         this.productRepository.deleteById(id);
     }
 
+    public Product findById(Long id) {
+        return this.productRepository.findById(id).get();
+    }
+
     public ResultPaginationDTO fetchAll(Pageable pageable, Specification<Product> spec) {
         ResultPaginationDTO res = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
