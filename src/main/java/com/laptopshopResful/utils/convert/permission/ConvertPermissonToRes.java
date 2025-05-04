@@ -1,6 +1,11 @@
 package com.laptopshopResful.utils.convert.permission;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.laptopshopResful.domain.entity.Permission;
+import com.laptopshopResful.domain.entity.Role;
 import com.laptopshopResful.domain.response.permission.ResCreatePermissionDTO;
 import com.laptopshopResful.domain.response.permission.ResFetchPermissionDTO;
 import com.laptopshopResful.domain.response.permission.ResUpdatePermissionDTO;
@@ -15,6 +20,12 @@ public class ConvertPermissonToRes {
         res.setCreatedAt(permission.getCreatedAt());
         res.setApiPath(permission.getApiPath());
         res.setCreatedBy(permission.getCreatedBy());
+        if (permission.getRoles() != null && !permission.getRoles().isEmpty()) {
+            List<ResCreatePermissionDTO.RoleList> rolesList = permission.getRoles().stream()
+                    .map(x -> new ResCreatePermissionDTO.RoleList(x.getId(), x.getName()))
+                    .collect(Collectors.toList());
+            res.setRoles(rolesList);
+        }
         return res;
     }
 

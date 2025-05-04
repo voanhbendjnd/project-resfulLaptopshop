@@ -1,7 +1,6 @@
 package com.laptopshopResful.service;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.laptopshopResful.controller.admin.PermissionController;
 import com.laptopshopResful.domain.entity.Permission;
 import com.laptopshopResful.domain.entity.Role;
 import com.laptopshopResful.domain.response.ResultPaginationDTO;
@@ -44,12 +42,11 @@ public class RoleService {
             List<Permission> per = this.permissionRepository.findByIdIn(listId);
             role.setPermissions(per);
         }
-        this.roleRepository.save(role);
-        return ConvertRoleToRes.convertCreate(role);
+        Role currentRole = this.roleRepository.save(role);
+        return ConvertRoleToRes.convertCreate(currentRole);
     }
 
     public ResUpdateRoleDTO update(Role role) {
-
         Role r = this.roleRepository.findById(role.getId()).get();
         if (role.getPermissions() != null) {
             List<Long> listId = role.getPermissions()
@@ -57,7 +54,9 @@ public class RoleService {
                     .map(Permission::getId)
                     .collect(Collectors.toList());
             List<Permission> per = this.permissionRepository.findByIdIn(listId);
-            role.setPermissions(per);
+            List<Permission> allPer = r.getPermissions();
+            allPer.addAll(per);
+            role.setPermissions(allPer);
         }
         UpdateNotNull.handle(role, r);
         this.roleRepository.save(r);
@@ -66,6 +65,14 @@ public class RoleService {
 
     public Role fetchById(Long id) {
         return this.roleRepository.findById(id).get();
+    }
+
+    public List<Role> findByIdIn(List<Long> listIds) {
+        return this.roleRepository.findByIdIn(listIds);
+    }
+
+    public List<Role> findAll() {
+        return this.roleRepository.findAll();
     }
 
     public ResultPaginationDTO fetchWithPagination(Pageable pageable, Specification<Role> spec) {

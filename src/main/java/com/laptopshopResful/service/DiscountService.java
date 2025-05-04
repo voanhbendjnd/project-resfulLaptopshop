@@ -20,7 +20,6 @@ import com.laptopshopResful.utils.convert.discount.ConvertDiscountToRes;
 @Service
 public class DiscountService {
     private final DiscountRepository discountRepository;
-    private final SecurityUtils securityUtils;
     private final UserService userService;
     // private final DiscountUserRepository discountUserRepository;
     private final DiscountUserService discountUserService;
@@ -31,7 +30,6 @@ public class DiscountService {
             DiscountUserRepository discountUserRepository,
             DiscountUserService discountUserService) {
         this.discountRepository = discountRepository;
-        this.securityUtils = securityUtils;
         this.userService = userService;
         this.discountUserService = discountUserService;
         // this.discountUserRepository = discountUserRepository;
@@ -66,7 +64,7 @@ public class DiscountService {
 
     public void handleDiscoutAfter(Long id) {
         Discount dis = this.discountRepository.findById(id).get();
-        String email = this.securityUtils.getCurrentUserLogin().get();
+        String email = SecurityUtils.getCurrentUserLogin().get();
         User user = this.userService.getUserByEmail(email);
         DiscountUser disU = new DiscountUser();
         disU.setDiscount(dis);

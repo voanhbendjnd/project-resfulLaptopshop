@@ -10,45 +10,36 @@ import com.laptopshopResful.domain.entity.Order;
 import com.laptopshopResful.domain.entity.OrderDetail;
 import com.laptopshopResful.domain.entity.Product;
 import com.laptopshopResful.domain.entity.User;
-import com.laptopshopResful.domain.request.RequestCheckoutCart;
 import com.laptopshopResful.domain.request.RequestOrderForDetail;
 import com.laptopshopResful.domain.response.order.ResOrderDTO;
-import com.laptopshopResful.repository.DiscountRepository;
 import com.laptopshopResful.repository.OrderDetailRepository;
 import com.laptopshopResful.repository.OrderRepository;
 import com.laptopshopResful.repository.ProductRepository;
 import com.laptopshopResful.repository.UserRepository;
 import com.laptopshopResful.utils.SecurityUtils;
 import com.laptopshopResful.utils.constant.StatusEnum;
+import com.laptopshopResful.utils.constant.TargetEnum;
 
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
-    private final SecurityUtils securityUtils;
     private final UserRepository userRepository;
-    private final DiscountRepository discountRepository;
-    private final CartService cartService;
     private final DiscountService discountService;
 
     private final ProductService productService;
 
-    public OrderService(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository,
+    public OrderService(OrderRepository orderRepository,
+            OrderDetailRepository orderDetailRepository,
             ProductRepository productRepository,
-            SecurityUtils securityUtils,
             UserRepository userRepository,
-            DiscountRepository discountRepository,
-            CartService cartService,
             ProductService productService,
             DiscountService discountService) {
         this.orderDetailRepository = orderDetailRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
-        this.securityUtils = securityUtils;
         this.userRepository = userRepository;
-        this.discountRepository = discountRepository;
-        this.cartService = cartService;
         this.productService = productService;
         this.discountService = discountService;
     }
@@ -62,11 +53,12 @@ public class OrderService {
         this.productRepository.save(product);
     }
 
-    public Long hanldeTotalPrice(Long productId, Long qty, String code) {
+    public Long hanldeTotalPrice(Long productId, Long qty, String code, TargetEnum target) {
         Product product = this.productService.findById(productId);
         Long giamGia = 0L;
         Optional<Discount> disOptional = Optional.ofNullable(this.discountService.fetchByCode(code));
-        if (disOptional.isPresent()) {
+        if (disOptional.isPresent() && product.getTarget().equals(target)
+                && disOptional.get().getFiled().equals(target)) {
             giamGia = (disOptional.get().getDiscount() * product.getPrice()) / 100;
             this.discountService.handleDiscoutAfter(disOptional.get().getId());
         }
@@ -77,12 +69,12 @@ public class OrderService {
     @Transactional
     public ResOrderDTO placeOrder(RequestOrderForDetail orderItems) {
         // start get info account
-        String email = this.securityUtils.getCurrentUserLogin().get();
+        String email = SecurityUtils.getCurrentUserLogin().get();
         User user = this.userRepository.findByEmail(email);
         // handle discount
         Long totalPrice = 0L;
         for (RequestOrderForDetail.Items x : orderItems.getItems()) {
-            totalPrice += this.hanldeTotalPrice(x.getIdProduct(), x.getQuantity(), x.getCode());
+            totalPrice += this.hanldeTotalPrice(x.getIdProduct(), x.getQuantity(), x.getCode(), x.getTarget());
         }
         // end get info account
 

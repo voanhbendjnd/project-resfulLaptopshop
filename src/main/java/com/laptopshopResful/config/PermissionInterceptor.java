@@ -14,6 +14,7 @@ import com.laptopshopResful.service.UserService;
 import com.laptopshopResful.utils.SecurityUtils;
 import com.laptopshopResful.utils.error.PermissionException;
 
+import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

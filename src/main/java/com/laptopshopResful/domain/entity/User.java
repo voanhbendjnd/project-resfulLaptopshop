@@ -52,6 +52,10 @@ public class User {
     @JsonIgnore
     private Cart cart;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Otp otp;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Order> orders;
 

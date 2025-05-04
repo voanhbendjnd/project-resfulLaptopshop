@@ -1,6 +1,9 @@
 package com.laptopshopResful.domain.response.permission;
 
 import java.time.Instant;
+import java.util.List;
+
+import com.laptopshopResful.domain.entity.Role;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

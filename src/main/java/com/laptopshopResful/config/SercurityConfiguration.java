@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -52,7 +51,7 @@ public class SercurityConfiguration {
         // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String[] whiteList = {
                 "/",
-                "/api/v1/auth/login",
+                "/auth/**",
                 "/api/v1/auth/refresh",
                 "/storage/**",
                 "/api/v1/auth/register",
@@ -70,6 +69,8 @@ public class SercurityConfiguration {
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/auth/input-otp").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/auth/forget-password").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                 .anyRequest().authenticated()
                 // .anyRequest().permitAll()

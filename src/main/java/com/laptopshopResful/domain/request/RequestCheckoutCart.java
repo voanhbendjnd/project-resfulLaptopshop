@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.List;
 
+import com.laptopshopResful.utils.constant.TargetEnum;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,5 +23,6 @@ public class RequestCheckoutCart {
         private Long productId;
         private Long quantity;
         private String codeDiscount;
+        private TargetEnum target;
     }
 }

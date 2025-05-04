@@ -2,7 +2,6 @@ package com.laptopshopResful.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -37,6 +36,10 @@ public class UserService {
         this.userRepository = userRepository;
         this.cartService = cartService;
 
+    }
+
+    public void saveUser(User user) {
+        this.userRepository.save(user);
     }
 
     public boolean existsByEmail(String email) {

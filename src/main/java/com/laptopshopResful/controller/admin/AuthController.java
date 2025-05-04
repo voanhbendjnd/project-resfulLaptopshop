@@ -1,6 +1,5 @@
 package com.laptopshopResful.controller.admin;
 
-import org.apache.catalina.security.SecurityUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,44 +14,45 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.laptopshopResful.domain.entity.User;
 import com.laptopshopResful.domain.request.RequestLoginDTO;
+import com.laptopshopResful.domain.request.RequestOTP;
 import com.laptopshopResful.domain.response.ResLoginDTO;
 import com.laptopshopResful.domain.response.user.ResCreateUserDTO;
 import com.laptopshopResful.service.CartService;
+import com.laptopshopResful.service.EmailService;
+import com.laptopshopResful.service.OtpService;
 import com.laptopshopResful.service.UserService;
 import com.laptopshopResful.utils.SecurityUtils;
 import com.laptopshopResful.utils.annotation.ApiMessage;
 import com.laptopshopResful.utils.error.IdInvalidException;
 
-import jakarta.validation.Valid;
-
 @RestController
 public class AuthController {
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final SecurityUtils securityUtils;
     private final AuthenticationManagerBuilder builder;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final CartService cartService;
-
+    private final OtpService otpService;
+    private final EmailService emailService;
     @Value("${djnd.jwt.access-token-validity-in-seconds}")
     private Long refreshTokenExpiration;
 
     public AuthController(AuthenticationManagerBuilder builder, SecurityUtils securityUtils,
-            UserService userService, PasswordEncoder passwordEncoder, CartService cartService) {
-        this.authenticationManagerBuilder = null;
+            UserService userService, PasswordEncoder passwordEncoder, CartService cartService,
+            OtpService otpService,
+            EmailService emailService) {
         this.builder = builder;
         this.securityUtils = securityUtils;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.cartService = cartService;
+        this.otpService = otpService;
+        this.emailService = emailService;
 
     }
 
@@ -196,4 +196,30 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.create(user));
     }
 
+    @PostMapping("/auth/forget-password")
+    @ApiMessage("Get OTP")
+    public ResponseEntity<Void> getOTP(@RequestBody RequestLoginDTO request) throws IdInvalidException {
+        if (this.userService.existsByEmail(request.getUsername())) {
+            this.emailService.sendOtp(this.otpService.getCodeOtp(request.getUsername()), request.getUsername());
+            return ResponseEntity.ok(null);
+        }
+        throw new IdInvalidException("Email not exist!");
+    }
+
+    @PostMapping("/auth/input-otp")
+    @ApiMessage("Input OTP and return accesstoken")
+    public ResponseEntity<String> inputOTP(@RequestBody RequestOTP re) {
+        return ResponseEntity.ok(this.otpService.getAccessTokenByReFresh(re.getCode(), re.getEmail()));
+    }
+
+    @PostMapping("/auth/change-password")
+    @ApiMessage("Change password")
+    public ResponseEntity<String> changePassword(@RequestBody RequestLoginDTO re) {
+        String email = SecurityUtils.getCurrentUserLogin().get();
+        User user = this.userService.getUserByEmail(email);
+        String hashPassword = this.passwordEncoder.encode(re.getPassword());
+        user.setPassword(hashPassword);
+        this.userService.saveUser(user);
+        return ResponseEntity.ok("Change password successful!");
+    }
 }

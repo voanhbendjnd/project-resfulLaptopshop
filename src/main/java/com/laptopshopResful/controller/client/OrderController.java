@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.laptopshopResful.domain.entity.Order;
 import com.laptopshopResful.domain.request.RequestCheckoutCart;
 import com.laptopshopResful.domain.request.RequestOrderForDetail;
 import com.laptopshopResful.domain.response.cart.ResCartCheckoutDTO;

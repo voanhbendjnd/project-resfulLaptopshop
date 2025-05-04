@@ -1,17 +1,19 @@
 package com.laptopshopResful.service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.laptopshopResful.domain.entity.Permission;
+import com.laptopshopResful.domain.entity.Role;
 import com.laptopshopResful.domain.response.ResultPaginationDTO;
 import com.laptopshopResful.domain.response.permission.ResCreatePermissionDTO;
-import com.laptopshopResful.domain.response.permission.ResFetchPermissionDTO;
 import com.laptopshopResful.domain.response.permission.ResUpdatePermissionDTO;
 import com.laptopshopResful.repository.PermissionRepository;
+import com.laptopshopResful.repository.RoleRepository;
 import com.laptopshopResful.utils.UpdateNotNull;
 import com.laptopshopResful.utils.convert.permission.ConvertPermissonToRes;
 
@@ -19,14 +21,37 @@ import com.laptopshopResful.utils.convert.permission.ConvertPermissonToRes;
 public class PermissionService {
 
     private final PermissionRepository permissionRepository;
+    private final RoleService roleService;
 
-    public PermissionService(PermissionRepository permissionRepository) {
+    public PermissionService(PermissionRepository permissionRepository, RoleService roleService) {
         this.permissionRepository = permissionRepository;
+        this.roleService = roleService;
     }
 
+    // public ResCreatePermissionDTO create(Permission per) {
+
+    // Permission currentPermission = new Permission();
+    // currentPermission.setApiPath(per.getApiPath());
+    // currentPermission.setMethod(per.getMethod());
+    // currentPermission.setModule(per.getModule());
+    // currentPermission.setName(per.getName());
+    // if (!roles.isEmpty() && roles != null) {
+    // currentPermission.setRoles(roles);
+    // }
+    // return ConvertPermissonToRes.convertToCreatRes(per);
+    // }
+
     public ResCreatePermissionDTO create(Permission per) {
-        this.permissionRepository.save(per);
-        return ConvertPermissonToRes.convertToCreatRes(per);
+        if (per.getRoles() != null) {
+            List<Long> idRole = per.getRoles().stream()
+                    .map(x -> x.getId())
+                    .collect(Collectors.toList());
+            List<Role> dbRoles = this.roleService.findByIdIn(idRole);
+            per.setRoles(dbRoles);
+        }
+        Permission currentPermission = this.permissionRepository.save(per);
+        return ConvertPermissonToRes.convertToCreatRes(currentPermission);
+
     }
 
     public ResUpdatePermissionDTO update(Permission per) {

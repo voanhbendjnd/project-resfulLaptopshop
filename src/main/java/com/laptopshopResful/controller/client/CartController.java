@@ -7,20 +7,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.laptopshopResful.domain.entity.Cart;
-import com.laptopshopResful.domain.entity.CartDetail;
+
 import com.laptopshopResful.service.CartService;
-import com.laptopshopResful.service.UserService;
+
 import com.laptopshopResful.utils.annotation.ApiMessage;
 import com.laptopshopResful.utils.error.IdInvalidException;
 
 @RestController
 public class CartController {
     private final CartService cartService;
-    private final UserService userService;
 
-    public CartController(CartService cartService, UserService userService) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
-        this.userService = userService;
+
     }
 
     @PostMapping("/carts")

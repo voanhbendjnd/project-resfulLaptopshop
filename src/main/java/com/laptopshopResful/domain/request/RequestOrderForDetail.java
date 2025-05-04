@@ -2,6 +2,8 @@ package com.laptopshopResful.domain.request;
 
 import java.util.List;
 
+import com.laptopshopResful.utils.constant.TargetEnum;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +29,7 @@ public class RequestOrderForDetail {
         private Long idProduct;
         private Long quantity;
         private String code;
+        private TargetEnum target;
     }
 
 }

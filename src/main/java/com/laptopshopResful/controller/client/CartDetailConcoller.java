@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.bind.annotation.RestController;
 
 import com.laptopshopResful.domain.entity.Cart;
@@ -18,8 +18,7 @@ import com.laptopshopResful.domain.request.RequestAddToCart;
 import com.laptopshopResful.domain.request.RequestCheckoutCart;
 import com.laptopshopResful.domain.response.cart.ResCartCheckoutDTO;
 import com.laptopshopResful.domain.response.cart.ResCartDTO;
-import com.laptopshopResful.repository.CartDetailRepository;
-import com.laptopshopResful.repository.UserRepository;
+
 import com.laptopshopResful.service.CartService;
 import com.laptopshopResful.service.ProductService;
 import com.laptopshopResful.service.UserService;
@@ -33,14 +32,14 @@ import jakarta.validation.Valid;
 public class CartDetailConcoller {
     private final CartService cartService;
     private final ProductService productService;
-    private final SecurityUtils securityUtils;
+    
     private final UserService userService;
 
     public CartDetailConcoller(CartService cartService, ProductService productService, SecurityUtils securityUtils,
             UserService userService) {
         this.cartService = cartService;
         this.productService = productService;
-        this.securityUtils = securityUtils;
+        
         this.userService = userService;
     }
 
@@ -73,7 +72,7 @@ public class CartDetailConcoller {
     @DeleteMapping("/client/carts/{id}")
     @ApiMessage("Remove product from cart")
     public ResponseEntity<Void> removeProductFromCart(@PathVariable("id") Long id) throws IdInvalidException {
-        String email = this.securityUtils.getCurrentUserLogin().get();
+        String email = SecurityUtils.getCurrentUserLogin().get();
         User user = this.userService.getUserByEmail(email);
         Cart cart = user.getCart();
         Product product = this.productService.fetch(id);

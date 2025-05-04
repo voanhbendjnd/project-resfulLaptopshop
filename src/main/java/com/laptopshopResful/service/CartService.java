@@ -1,13 +1,9 @@
 package com.laptopshopResful.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import com.laptopshopResful.config.SercurityConfiguration;
 import com.laptopshopResful.domain.entity.Cart;
 import com.laptopshopResful.domain.entity.CartDetail;
 import com.laptopshopResful.domain.entity.Discount;
@@ -27,7 +23,6 @@ import com.laptopshopResful.utils.SecurityUtils;
 public class CartService {
 
     private final CartRepository cartRepository;
-    private final SecurityUtils securityUtils;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartDetailRepository cartDetailRepository;
@@ -39,7 +34,6 @@ public class CartService {
 
             DiscountRepository discountRepository) {
         this.cartRepository = cartRepository;
-        this.securityUtils = securityUtils;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.cartDetailRepository = cartDetailRepository;
@@ -48,8 +42,8 @@ public class CartService {
     }
 
     public Cart create(Cart cart) {
-        String email = this.securityUtils.getCurrentUserLogin().isPresent()
-                ? this.securityUtils.getCurrentUserLogin().get()
+        String email = SecurityUtils.getCurrentUserLogin().isPresent()
+                ? SecurityUtils.getCurrentUserLogin().get()
                 : "";
         User user = this.userRepository.findByEmail(email);
         cart.setUser(user);
@@ -58,8 +52,8 @@ public class CartService {
 
     public void addToCart(Long id, Long quantity) {
         if (this.productRepository.existsById(id)) {
-            String email = this.securityUtils.getCurrentUserLogin().isPresent()
-                    ? this.securityUtils.getCurrentUserLogin().get()
+            String email =SecurityUtils.getCurrentUserLogin().isPresent()
+                    ? SecurityUtils.getCurrentUserLogin().get()
                     : "";
             User user = this.userRepository.findByEmail(email);
             Cart cart = user.getCart();
@@ -88,8 +82,8 @@ public class CartService {
     }
 
     public void createCart(Cart cart) {
-        String email = this.securityUtils.getCurrentUserLogin().isPresent()
-                ? this.securityUtils.getCurrentUserLogin().get()
+        String email = SecurityUtils.getCurrentUserLogin().isPresent()
+                ?SecurityUtils.getCurrentUserLogin().get()
                 : "";
         User user = this.userRepository.findByEmail(email);
         cart.setUser(user);
@@ -97,7 +91,7 @@ public class CartService {
     }
 
     public ResCartDTO getCartDetail() {
-        String email = this.securityUtils.getCurrentUserLogin().get();
+        String email =SecurityUtils.getCurrentUserLogin().get();
         User user = this.userRepository.findByEmail(email);
         Cart cart = user.getCart();
         List<CartDetail> cartDetails = cart.getCartDetails();
@@ -119,7 +113,7 @@ public class CartService {
     }
 
     public void deleteQuantityCart(Boolean check) {
-        String email = this.securityUtils.getCurrentUserLogin().get();
+        String email = SecurityUtils.getCurrentUserLogin().get();
         User user = this.userRepository.findByEmail(email);
         Cart cart = user.getCart();
         if (!check) {
@@ -134,7 +128,7 @@ public class CartService {
     public void setIncreaseOrDecreaseForProduct(Long id, String operation, Long quantity) {
         Product product = this.productRepository.findById(id).get();
         Long qtyProduct = product.getQuantity();
-        String email = this.securityUtils.getCurrentUserLogin().get();
+        String email = SecurityUtils.getCurrentUserLogin().get();
         User user = this.userRepository.findByEmail(email);
         Cart cart = user.getCart();
         CartDetail cartDetail = this.cartDetailRepository.findByCartAndProduct(cart, product);
@@ -161,7 +155,7 @@ public class CartService {
     }
 
     public void removeProductFromCart(Long id) {
-        String email = this.securityUtils.getCurrentUserLogin().get();
+        String email = SecurityUtils.getCurrentUserLogin().get();
         User user = this.userRepository.findByEmail(email);
         Cart cart = user.getCart();
         Product product = this.productRepository.findById(id).get();
@@ -181,7 +175,7 @@ public class CartService {
         for (RequestCheckoutCart.OrderItem x : checkout.getItems()) {
             Product product = this.productRepository.findById(x.getProductId()).get();
             Discount dis = this.discountRepository.findByCode(x.getCodeDiscount());
-            if (dis != null) {
+            if (dis != null && dis.getFiled().equals(x.getTarget()) && dis.getFiled().equals(product.getTarget())) {
                 giamGia = (dis.getDiscount() * product.getPrice()) / 100;
                 // this.discountService.handleDiscoutAfter(dis.getId());
             }
